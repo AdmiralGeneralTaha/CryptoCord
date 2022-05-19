@@ -4,9 +4,8 @@ import discord
 import random
 from replit import db
 import keep_alive
-import itertools
 from sub_routines import getCryptoPricesGBP, getCryptoPricesUSD, getCryptoPricesEUR
-#from status import change_status
+
 
 client = discord.Client()
 client.current_status = 0
@@ -40,8 +39,7 @@ async def change_status():
         getCryptoPricesUSD(current)
         text = f"{current}: ${str(db[current])}"
 
-    await client.change_presence(status=discord.Status.idle,
-                                 activity=discord.Game(text))
+    await client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=(text)))
     client.current_status += 1
     if client.current_status >= len(status):
         client.current_status = 0
