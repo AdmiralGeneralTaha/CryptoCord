@@ -1,5 +1,5 @@
 # CryptoCord
-a discord bot that pulls up to date crypto prices upon command (unfinished)
+a simple discord bot that pulls up to date crypto prices upon command (unfinished)
 
 **THE CODE WILL NOT RUN WITHOUT YOUR OWN DISCORD BOT ACCOUNT**
 
