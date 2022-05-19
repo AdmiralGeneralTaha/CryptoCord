@@ -86,10 +86,6 @@ async def on_message(message):
     if message.content == "-ping":
         await message.channel.send(f"{round(client.latency * 1000)}ms")
 
-    if message.content == "tag joedy":
-      while True:
-        await message.channel.send("<@320927828659142658>")
-
 
 #keeps the bot running 24/7
 keep_alive.keep_alive()
