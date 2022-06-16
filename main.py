@@ -4,75 +4,48 @@ import discord
 import random
 from replit import db
 import keep_alive
-from sub_routines import getCryptoPricesGBP, getCryptoPricesUSD, getCryptoPricesEUR
-
+from sub_routines import getCryptoPrices, stdform_convert
+from lists import currencies, status, reply, clientCurrencies
 
 client = discord.Client()
 client.current_status = 0
-status = [
-    "£bitcoin", "$bitcoin", "£ethereum", "$ethereum", "£dogecoin", "$dogecoin",
-    "£cardano", "$cardano"
-]
 
-reply = ['daddy elon😍', '2DaMoon!', 'bitcoin!']
-
-
-#prints confirmation message in console when logged in
 @client.event
 async def on_ready():
-    change_status()
+    await change_status()
     print("we have logged in as {0.user}".format(client))
     change_status.start()
 
-
-#cycles bot status every 15 seconds
-@tasks.loop(seconds=15)
+@tasks.loop(seconds=10)
 async def change_status():
     current = status[client.current_status]
-
-    if current.startswith("£"):
-        current = current.strip("£")
-        getCryptoPricesGBP(current)
-        text = f"{current}: £{str(db[current])}"
-    else:
-        current = current.strip("$")
-        getCryptoPricesUSD(current)
-        text = f"{current}: ${str(db[current])}"
+    print (current)
+    if current[0] in clientCurrencies:
+      symbol = current[0]
+      getCryptoPrices(symbol)
+      text = f"{current[1:]}: {current[0]}{str(db[current[1:]])}"
 
     await client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=(text)))
     client.current_status += 1
     if client.current_status >= len(status):
-        client.current_status = 0
+      client.current_status = 0
 
-
-#messages sent by the bot will be ignored
 @client.event
 async def on_message(message):
     if message.author == client.user:
         return
+      
+    if any([message.content[0] in clientCurrencies]):
+      symbol, crypto = message.content[0], message.content[1:]
 
-#if user message starts with "£" it uses the GBP api to return a message with the price of the crypto requested
-    if message.content.startswith("£"):
-        crypto = message.content.lower()
-        crypto = crypto.replace("£", "")
-        getCryptoPricesGBP(crypto)
-        await message.channel.send("The current price of " + crypto +
-                                   " is: £" + str((db[crypto])))
-
-#same is done for "$", but uses the USD api
-    if message.content.startswith("$"):
-        crypto = message.content.lower()
-        crypto = crypto.replace("$", "")
-        getCryptoPricesUSD(crypto)
-        await message.channel.send("The current price of " + crypto +
-                                   " is: $" + str((db[crypto])))
-
-    if message.content.startswith("€"):
-        crypto = message.content.lower()
-        crypto = crypto.replace("€", "")
-        getCryptoPricesEUR(crypto)
-        await message.channel.send("The current price of " + crypto +
-                                   " is: €" + str((db[crypto])))
+      getCryptoPrices(symbol)
+      if crypto in currencies:
+        crypto = currencies[crypto]
+        price = str(db[crypto])
+        if "e" in price:
+          price = stdform_convert(price)
+      await message.channel.send("The current price of " + crypto +
+                                 " is: " + message.content[0] + price)
 
     if client.user.mentioned_in(message):
         await message.channel.send(random.choice(reply))
@@ -84,9 +57,6 @@ async def on_message(message):
     if message.content == "-ping":
         await message.channel.send(f"{round(client.latency * 1000)}ms")
 
-
-#keeps the bot running 24/7
 keep_alive.keep_alive()
 
-#connects to the discord bot account
 client.run(os.getenv("token"))
