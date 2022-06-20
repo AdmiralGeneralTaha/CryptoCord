@@ -65,8 +65,8 @@ async def on_message(message):
         await message.channel.send(
             "`do ${crypto name} for crypto price in dollars, or £{crypto name} for crypto price in pounds`")
 
-    if any([message.content[0] in clientCurrencies]) and message.content[1:4] == "ath":
-      symbol, crypto = message.content[0], message.content[5:]
+    if any([message.content[4] in clientCurrencies]) and message.content[0:3] == "ath":
+      symbol, crypto = message.content[4], message.content[5:]
 
       ath(symbol)
       if crypto in currencies:
@@ -74,8 +74,9 @@ async def on_message(message):
         thing = str(db[crypto])
         if "e" in thing:
            thing = stdform_convert(thing)
-        await message.channel.send("`The all time high for " + message.content[5:] + "was $" + thing + "`")
-
+        crptcurr = message.content[5:]
+        crptcurr = crptcurr.upper()
+        await message.channel.send("`The all time high for " + crptcurr + " was $" + thing + "`")
         
     if message.content == "-ping":
         await message.channel.send(f"`{round(client.latency * 1000)}ms`")
