@@ -15,6 +15,28 @@ def getCryptoPrices(currency):
   for i in range(len(data)):
     db[data[i]["id"]] = data[i]["current_price"]
 
+def tf_hChange():
+  URL = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd"
+
+  r = requests.get(URL)
+  data = r.json()
+ 
+  for i in range(len(data)):
+    db[data[i]["id"]] = data[i]["price_change_percentage_24h"]
+
+def ath(currency):
+  if currency == "£":
+    URL = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=gbp"
+  elif currency == "$":
+    URL = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd"
+  else:
+    URL = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=eur"
+  r = requests.get(URL)
+  data = r.json()
+ 
+  for i in range(len(data)):
+    db[data[i]["id"]] = data[i]["ath"]
+
 def stdform_convert(price): 
   price, float_point = price.split("e") 
   price = float(price)
