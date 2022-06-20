@@ -4,7 +4,7 @@ import discord
 import random
 from replit import db
 import keep_alive
-from sub_routines import getCryptoPrices, stdform_convert
+from sub_routines import getCryptoPrices, stdform_convert, tf_hChange, ath
 from lists import currencies, status, reply, clientCurrencies
 
 client = discord.Client()
@@ -44,18 +44,41 @@ async def on_message(message):
         price = str(db[crypto])
         if "e" in price:
           price = stdform_convert(price)
-      await message.channel.send("The current price of " + crypto +
-                                 " is: " + message.content[0] + price)
+      await message.channel.send("`The current price of " + crypto +
+                                 " is: " + message.content[0] + price +"`")
+
+    if message.content.startswith("%"):
+      currency_change = message.content[1:]
+      tf_hChange()
+      if currency_change in currencies:
+        currency_change = currencies[currency_change]
+      change = str(db[currency_change])
+      if change[0] == "-":
+        await message.channel.send("`" + currency_change[1:] + " is down " + change + "% in the past 24 hours`")
+      else:
+        await message.channel.send("`" + currency_change + " is up " + change + "% in the past 24 hours`")
 
     if client.user.mentioned_in(message):
         await message.channel.send(random.choice(reply))
 
     if message.content == "-help":
         await message.channel.send(
-            "do ${crypto name} for crypto price in dollars, or £{crypto name} for crypto price in pounds")
+            "`do ${crypto name} for crypto price in dollars, or £{crypto name} for crypto price in pounds`")
 
+    if any([message.content[0] in clientCurrencies]) and message.content[1:4] == "ath":
+      symbol, crypto = message.content[0], message.content[5:]
+
+      ath(symbol)
+      if crypto in currencies:
+        crypto = currencies[crypto]
+        thing = str(db[crypto])
+        if "e" in thing:
+           thing = stdform_convert(thing)
+        await message.channel.send("`The all time high for " + message.content[5:] + "was $" + thing + "`")
+
+        
     if message.content == "-ping":
-        await message.channel.send(f"{round(client.latency * 1000)}ms")
+        await message.channel.send(f"`{round(client.latency * 1000)}ms`")
 
 keep_alive.keep_alive()
 
