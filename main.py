@@ -4,7 +4,7 @@ import discord
 import random
 from replit import db
 import keep_alive
-from sub_routines import getCryptoPrices, stdform_convert, tf_hChange, ath
+from sub_routines import getCryptoPrices, stdform_convert, tf_hChange, ath, marketcaprank
 from lists import currencies, status, reply, clientCurrencies
 
 client = discord.Client()
@@ -44,7 +44,7 @@ async def on_message(message):
         price = str(db[crypto])
         if "e" in price:
           price = stdform_convert(price)
-      await message.channel.send("`The current price of " + crypto +
+      await message.channel.send("`xd The current price of " + crypto +
                                  " is: " + message.content[0] + price +"`")
 
     if message.content.startswith("%"):
@@ -54,18 +54,14 @@ async def on_message(message):
         currency_change = currencies[currency_change]
       change = str(db[currency_change])
       if change[0] == "-":
-        await message.channel.send("`" + currency_change[1:] + " is down " + change + "% in the past 24 hours`")
+        await message.channel.send("`" + currency_change + " is down " + change + "% in the past 24 hours`")
       else:
         await message.channel.send("`" + currency_change + " is up " + change + "% in the past 24 hours`")
 
     if client.user.mentioned_in(message):
         await message.channel.send(random.choice(reply))
-
-    if message.content == "-help":
-        await message.channel.send(
-            "`do ${crypto name} for crypto price in dollars, or £{crypto name} for crypto price in pounds`")
-
-    if any([message.content[4] in clientCurrencies]) and message.content[0:3] == "ath":
+    
+    if message.content.startswith("ath") and message.content[4] in clientCurrencies:
       symbol, crypto = message.content[4], message.content[5:]
 
       ath(symbol)
@@ -76,10 +72,29 @@ async def on_message(message):
            thing = stdform_convert(thing)
         crptcurr = message.content[5:]
         crptcurr = crptcurr.upper()
-        await message.channel.send("`The all time high for " + crptcurr + " was $" + thing + "`")
-        
+        await message.channel.send("`The all time high for " + crptcurr + " was "+ message.content[4] + thing + "`")
+
+    if message.content.startswith("mcr"):
+      crypto = message.content[4:]
+
+      marketcaprank()
+      if crypto in currencies:
+        crypto = currencies[crypto]
+        rank = str(db[crypto])
+        rankedcurr = message.content[4:]
+        rankedcurr = rankedcurr.upper()
+        await message.channel.send("`The market cap rank for " + rankedcurr + " is " + rank +"`")
+
     if message.content == "-ping":
         await message.channel.send(f"`{round(client.latency * 1000)}ms`")
+
+    if message.content == "-commence spam-tag":
+      while True:
+       await message.channel.send("<@311602664985067520>")
+        
+    if message.content == "-help":
+        await message.channel.send(
+            "`CryptoCord is a simple bot that will bring you real time Crypto Currency prices, and relevant information upon request\n\n$/£/€{crypto name} for real time crypto price. - $btc \n%{crypto name} for 24hour cyrpto percentage change - %btc \nath $/£/€{crypto name} for All time high of requested currency - ath $btc\nmcr {crypto name] for the Market cap rank of requested currency - mcr btc`")
 
 keep_alive.keep_alive()
 
