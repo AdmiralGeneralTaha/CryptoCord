@@ -24,6 +24,15 @@ def tf_hChange():
   for i in range(len(data)):
     db[data[i]["id"]] = data[i]["price_change_percentage_24h"]
 
+def marketcaprank():
+  URL = URL = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd"
+
+  r = requests.get(URL)
+  data = r.json()
+ 
+  for i in range(len(data)):
+    db[data[i]["id"]] = data[i]["market_cap_rank"]
+
 def ath(currency):
   if currency == "£":
     URL = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=gbp"
@@ -48,4 +57,4 @@ def stdform_convert(price):
     places_to_move = int(float_point[float_point.rfind("0") + 1])
     for i in range(places_to_move):
       price *= 10
-  return "{:.11f}".format(price)
+  return "{:.9f}".format(price)
